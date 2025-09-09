@@ -6,13 +6,13 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = config("DJANGO_SECRET_KEY", default="sagfhbfbshkcsfcafhghsfayetfdasdsyfjxhfhasfyegyegyd")
 
-# DEBUG = True
+DEBUG = False;
 #DEBUG = config("DEBUG_SETTING")
-DEBUG = os.getenv('DEBUG_SETTING', 'False').lower() == 'true'
-print("Debug: " , type(DEBUG), DEBUG)
+#DEBUG = os.getenv('DEBUG_SETTING', 'False').lower() == 'true'
+#print("Debug: " , type(DEBUG), DEBUG)
 
-print("DJS: ", SECRET_KEY)
-ALLOWED_HOSTS = ['phoenixvanz.com','https://coral-app-4w4xo.ondigitalocean.app/', '127.0.0.1']
+#print("DJS: ", SECRET_KEY)
+ALLOWED_HOSTS = ['phoenixvanz.com','https://coral-app-4w4xo.ondigitalocean.app/', '127.0.0.1', 'localhost', 'dev-phoenixvanz-wmmo3.ondigitalocean.app', 'dev.phoenixvanz.com']
 
 # Application definition
 
@@ -23,7 +23,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    
+    'nested_admin',
+    'rest_framework',
     'accounts',
     'cart',
     'storages',
@@ -109,3 +110,13 @@ MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media/')
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+CORS_ALLOW_CREDENTIALS = True
+
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:3000", 
+    "https://dev-phoenixvanz-wmmo3.ondigitalocean.app", 
+]
+
+SESSION_COOKIE_SAMESITE = "Lax"  # or 'None' if cross-domain + HTTPS
+SESSION_COOKIE_SECURE = True 
