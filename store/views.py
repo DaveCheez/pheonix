@@ -1,5 +1,7 @@
 from django.shortcuts import render, get_object_or_404
-from .models import Product, Category
+from .models import Product, Category, ProductImage, CategoryImage, Review
+from rest_framework import generics
+from .serializers import ProductSerializer, CategorySerializer, CategoryWithProductsSerializer, ReviewSerializer
 
 
 def categories(request):
@@ -29,3 +31,24 @@ def product_detail(request, slug):
 
 def about(request):
     return render(request, 'store/about.html')
+
+class ProductDetailAPI(generics.RetrieveAPIView):
+    queryset = Product.objects.all()
+    serializer_class = ProductSerializer
+    lookup_field = 'slug'
+
+class CategoryListAPI(generics.ListAPIView):
+    serializer_class = CategorySerializer
+
+    def get_queryset(self):
+        category_type = self.request.query_params.get('type', 'product')
+        return Category.objects.filter(type=category_type)
+
+class CategoryDetailAPI(generics.RetrieveAPIView):
+    queryset = Category.objects.all()
+    serializer_class = CategoryWithProductsSerializer
+    lookup_field = 'slug'
+
+class ReviewListAPI(generics.ListAPIView):
+    queryset = Review.objects.all()
+    serializer_class = ReviewSerializer
