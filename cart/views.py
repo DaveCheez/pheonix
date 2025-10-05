@@ -9,37 +9,21 @@ from store.models import Product
 from .serializers import CartSerializer
 import traceback
 
-
-@login_required
-def cart(request):
-    cart_items = CartItem.objects.filter(cart__user=request.user)
-    total_price = sum(item.quantity * item.product.price for item in cart_items)
-    return render(request, 'cart/cart.html', {'cart_items': cart_items, 'total_price': total_price})
-
-@login_required
-def add_to_cart(request, product_id):
-    product = get_object_or_404(Product, pk=product_id)
-    cart, created = Cart.objects.get_or_create(user=request.user)
-    cart_item, created = CartItem.objects.get_or_create(cart=cart, product=product)
-    cart_item.quantity += 1
-    cart_item.save()
-    return redirect('cart:cart')
-
-@login_required
-def remove_from_cart(request, cart_item_id):
-    cart_item = get_object_or_404(CartItem, pk=cart_item_id)
-    if cart_item.cart.user == request.user:
-        if cart_item.quantity == 1:
-            cart_item.delete()
-        else:
-            cart_item.quantity -= 1
-            cart_item.save()
-    return redirect('cart:cart')
-
 @api_view(['POST'])
 def create_cart(request):
-    cart = Cart.objects.create()
-    return Response({'cart_id': str(cart.id)})
+    # Ensure session exists
+    if not request.session.session_key:
+        request.session.create()
+    
+    session_key = request.session.session_key
+    
+    # Check if a cart already exists for this session
+    cart, created = Cart.objects.get_or_create(session_key=session_key)
+    
+    response = Response({'cart_id': str(cart.id)})
+    # Set the cookie on the response. max_age is in seconds (e.g., 30 days)
+    response.set_cookie('cart_id', str(cart.id), max_age=30*24*60*60, samesite='Lax')
+    return response
 
 @api_view(['GET'])
 def get_cart(request):
@@ -66,9 +50,12 @@ def get_cart(request):
         cart_items.append({
             'item_id': item.id,
             'product_id': item.product.id,
-            'product_name': item.product.name,
+            'name': item.product.name,
+            'product_slug': item.product.slug,
             'quantity': item.quantity,
-            'price': str(line_total),  # 👈 Total for this line
+            'price': str(unit_price),
+            'sku': item.product.sku,
+            'image': item.product.get_featured_image_url() or '',
         })
 
     return Response({
@@ -91,7 +78,12 @@ def add_to_cart(request):
         if not cart_id:
             return Response({'error': 'Missing cart_id'}, status=400)
 
-        cart = Cart.objects.get(id=cart_id)
+        # Try to get cart by ID, or by session if ID is not found (for robustness)
+        try:
+            cart = Cart.objects.get(id=cart_id)
+        except Cart.DoesNotExist:
+            session_key = request.session.session_key
+            cart, _ = Cart.objects.get_or_create(session_key=session_key)
 
         product = Product.objects.get(id=product_id)
 
@@ -135,5 +127,3 @@ def remove_from_cart(request):
         return Response({'success': True})
     except CartItem.DoesNotExist:
         return Response({'error': 'Item not found'}, status=404)
-
-
