@@ -1,5 +1,6 @@
 from django.db import models
 from django.urls import reverse
+from django.conf import settings
 from django.utils import timezone
 
 
@@ -43,6 +44,17 @@ class Product(models.Model):
     # REPLACE WITH REVERSE 
     def get_absolute_url(self):
         return f'/shop/{self.slug}'
+
+    def get_featured_image(self):
+        return self.productimage_set.filter(image_type='thumbnail').first()
+
+    def get_featured_image_url(self):
+        image = self.get_featured_image() or self.productimage_set.first()
+        if image and image.image:
+            # Always return a full URL for the frontend
+            # Make sure SITE_URL is configured in your settings.py
+            return f"{settings.SITE_URL}{image.image.url}"
+        return ""
 
 class ProductImage(models.Model):
     IMAGE_TYPE_CHOICES = [
