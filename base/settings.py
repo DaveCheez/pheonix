@@ -118,6 +118,8 @@ CORS_ALLOW_CREDENTIALS = True
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000", 
     "https://dev-phoenixvanz-wmmo3.ondigitalocean.app", 
+    "dev.phoenixvanz.com",
+    "https://phoenixvanz.com",
 ]
 
 SESSION_COOKIE_SAMESITE = "Lax"  # or 'None' if cross-domain + HTTPS
