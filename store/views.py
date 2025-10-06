@@ -1,5 +1,5 @@
 from django.shortcuts import render, get_object_or_404
-from .models import Product, Category, ProductImage, CategoryImage, Review
+from .models import Product, Category, Review
 from rest_framework import generics
 from .serializers import ProductSerializer, CategorySerializer, CategoryWithProductsSerializer, ReviewSerializer
 
