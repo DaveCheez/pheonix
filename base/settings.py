@@ -120,6 +120,7 @@ CORS_ALLOWED_ORIGINS = [
     "https://dev-phoenixvanz-wmmo3.ondigitalocean.app", 
     "dev.phoenixvanz.com",
     "https://phoenixvanz.com",
+    "pheonix-production-591e.up.railway.app"
 ]
 
 SESSION_COOKIE_SAMESITE = "Lax"  # or 'None' if cross-domain + HTTPS
